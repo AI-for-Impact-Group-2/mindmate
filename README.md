@@ -113,4 +113,4 @@ Thank you for exploring MindWell! We hope this app supports your wellness journe
 
 ---
 
-Made with ❤ by the team error-404
+Made with ❤ by the team ERROR_404
