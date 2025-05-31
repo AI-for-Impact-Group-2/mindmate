@@ -12,6 +12,9 @@ import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { Brain, ArrowLeft, LogOut, Settings, Wind, Gamepad2, BookOpen, Dumbbell, Timer, Play, Pause, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import BreathingExercise from "@/components/BreathingExercise";
+import MeditationTimer from "@/components/MeditationTimer";
+import ProgressiveMuscleRelaxation from "@/components/ProgressiveMuscleRelaxation";
 
 export default function Exercises() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -246,105 +249,62 @@ export default function Exercises() {
   const exercises = [
     {
       id: "breathing",
-      title: "Breathing Exercise",
-      description: "Guided breathing techniques to reduce stress and anxiety",
+      title: "Guided Breathing Exercise",
+      description: "Interactive breathing patterns with visual guidance and audio cues",
       image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200",
       icon: Wind,
       gradient: "from-blue-600 to-purple-600",
       component: (
-        <div className="text-center">
-          <motion.div
-            animate={{
-              scale: breathingPhase === 'inhale' ? 1.2 : breathingPhase === 'hold' ? 1.2 : 1,
-            }}
-            transition={{ duration: 4, ease: "easeInOut" }}
-            className="w-32 h-32 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mx-auto mb-8 flex items-center justify-center"
-          >
-            <Wind className="text-white w-12 h-12" />
-          </motion.div>
-          
-          <div className="mb-6">
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
-              {breathingPhase === 'inhale' ? 'Breathe In' : breathingPhase === 'hold' ? 'Hold' : 'Breathe Out'}
-            </h3>
-            <p className="text-slate-600 dark:text-slate-400">Time: {formatTime(breathingTimer)}</p>
-          </div>
-          
-          <div className="space-x-4">
-            {!breathingActive ? (
-              <Button onClick={startBreathing} className="bg-gradient-to-r from-blue-600 to-purple-600">
-                <Play className="w-4 h-4 mr-2" />
-                Start Breathing
-              </Button>
-            ) : (
-              <Button onClick={stopBreathing} variant="outline">
-                <Pause className="w-4 h-4 mr-2" />
-                Stop & Save
-              </Button>
-            )}
-          </div>
-        </div>
+        <BreathingExercise 
+          onComplete={(duration) => {
+            createExerciseSessionMutation.mutate({
+              exerciseType: "breathing",
+              duration: duration,
+              completed: true,
+              data: { totalMinutes: duration }
+            });
+          }}
+        />
       )
     },
     {
       id: "meditation",
       title: "Meditation Timer",
-      description: "Customizable timer with calming sounds for meditation",
+      description: "Customizable timer with ambient sounds and progress tracking",
       image: "https://images.unsplash.com/photo-1447452001602-7090c7ab2db3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200",
       icon: Timer,
       gradient: "from-green-600 to-blue-600",
       component: (
-        <div className="text-center">
-          <div className="w-32 h-32 bg-gradient-to-r from-green-400 to-blue-400 rounded-full mx-auto mb-8 flex items-center justify-center">
-            <Timer className="text-white w-12 h-12" />
-          </div>
-          
-          <div className="mb-6">
-            <h3 className="text-4xl font-bold text-slate-800 dark:text-white mb-4">
-              {formatTime(meditationTimeLeft)}
-            </h3>
-            
-            {!meditationActive && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Duration (minutes)
-                </label>
-                <Input
-                  type="number"
-                  value={meditationTimer / 60}
-                  onChange={(e) => {
-                    const minutes = parseInt(e.target.value) || 5;
-                    setMeditationTimer(minutes * 60);
-                    setMeditationTimeLeft(minutes * 60);
-                  }}
-                  min="1"
-                  max="60"
-                  className="w-24 mx-auto text-center"
-                />
-              </div>
-            )}
-          </div>
-          
-          <div className="space-x-4">
-            {!meditationActive ? (
-              <Button onClick={startMeditation} className="bg-gradient-to-r from-green-600 to-blue-600">
-                <Play className="w-4 h-4 mr-2" />
-                Start Meditation
-              </Button>
-            ) : (
-              <>
-                <Button onClick={stopMeditation} variant="outline">
-                  <Pause className="w-4 h-4 mr-2" />
-                  Pause
-                </Button>
-                <Button onClick={resetMeditation} variant="outline">
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  Reset
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
+        <MeditationTimer
+          onComplete={(duration) => {
+            createExerciseSessionMutation.mutate({
+              exerciseType: "meditation",
+              duration: duration,
+              completed: true,
+              data: { timerDuration: duration }
+            });
+          }}
+        />
+      )
+    },
+    {
+      id: "relaxation",
+      title: "Progressive Muscle Relaxation",
+      description: "Step-by-step guided muscle relaxation with visual cues",
+      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200",
+      icon: Dumbbell,
+      gradient: "from-amber-600 to-orange-600",
+      component: (
+        <ProgressiveMuscleRelaxation
+          onComplete={(duration) => {
+            createExerciseSessionMutation.mutate({
+              exerciseType: "relaxation",
+              duration: duration,
+              completed: true,
+              data: { type: "progressive_muscle_relaxation" }
+            });
+          }}
+        />
       )
     },
     {
